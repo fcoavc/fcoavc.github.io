@@ -1,3 +1,11 @@
+## Bienvenido a mi blog
+
+En sitio se usa [Jekyll](https://jekyllrb.com/) para construir nuevos posts en el sitio.
+
+Simplemente se cre un nuevo archivo **md** en la carpeta `_posts` y automáticamente se incluirá en el blog.
+
+----
+
 ## Welcome to GitHub Pages
 
 You can use the [editor on GitHub](https://github.com/fcoavc/fcoavc.github.io/edit/main/README.md) to maintain and preview the content for your website in Markdown files.
