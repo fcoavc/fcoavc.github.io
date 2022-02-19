@@ -1,8 +1,12 @@
 ---
 layout: page
-title: About
+title: Acerca de
 permalink: /about/
 ---
+
+De los creadores de [Estadística desde cero](https://franciscoariel.github.io/site/), te presentamos un blog en donde aprenderás más acerca de cómo aplicar diversos métodos estadísticos.
+
+----
 
 This is the base Jekyll theme. You can find out more info about customizing your Jekyll theme, as well as basic Jekyll usage documentation at [jekyllrb.com](https://jekyllrb.com/)
 
