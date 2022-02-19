@@ -4,3 +4,7 @@
 
 layout: home
 ---
+
+## Bienvenidos al blog
+
+Si quieres aprender más no olvides visitar nuestro sitio web [Estadística desde cero](https://franciscoariel.github.io/site/). 
