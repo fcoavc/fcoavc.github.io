@@ -1,3 +1,9 @@
+---
+layout: page
+title: Léeme
+permalink: /readme/
+---
+
 ## Bienvenido a mi blog
 
 En sitio se usa [Jekyll](https://jekyllrb.com/) para construir nuevos posts en el sitio.
