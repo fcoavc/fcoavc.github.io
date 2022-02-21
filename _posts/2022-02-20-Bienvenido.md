@@ -1,15 +1,15 @@
 ---
 layout: post
-title:  "Bienvenido al blog de EstadÌsitca desde Cero!"
+title:  "Bienvenido al blog de Estad√≠sitca desde Cero!"
 date:   2022-02-20 21:00:00 -0600
 categories: Blog Bienvenida
 author: Francisco Ariel
 ---
 
-_EstadÌstica Desde Cero_ quiere agradecerte que nos sigas y estamos muy contentos de tenerte. Por esta razÛn hemos decidido crear este espacio en donde publicaremos contenido con mayor frecuencia.
+_Estad√≠stica Desde Cero_ quiere agradecerte que nos sigas y estamos muy contentos de tenerte. Por esta raz√≥n hemos decidido crear este espacio en donde publicaremos contenido con mayor frecuencia.
 
-En este blog se abordar·n temas de estadÌstica aplicada y aprender·s a enfrentarte a diversos problemas.
+En este blog se abordar√°n temas de estad√≠stica aplicada y aprender√°s a enfrentarte a diversos problemas.
 
 Atentamente
 
-El equipo de _EstadÌstica desde Cero_
+El equipo de _Estad√≠stica desde Cero_
