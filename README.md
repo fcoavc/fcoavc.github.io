@@ -8,7 +8,7 @@ permalink: /readme/
 
 En sitio se usa [Jekyll](https://jekyllrb.com/) para construir nuevos posts en el sitio.
 
-Simplemente se cre un nuevo archivo **md** en la carpeta `_posts` y automáticamente se incluirá en el blog.
+Simplemente se crea un nuevo archivo **md** en la carpeta `_posts` y automáticamente se incluirá en el blog.
 
 ----
 
