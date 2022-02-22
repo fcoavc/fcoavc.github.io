@@ -18,7 +18,7 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 
-title: Estadística desde cero
+title: Blog de Estadística desde cero
 email: fcoavc@yahoo.com
 description: >- # this means to ignore newlines until "baseurl:"
   En este blog aprenderás a usar diversos métodos estadísticos usando distintos lenguajes de programación.
@@ -26,7 +26,7 @@ baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://fcoavc.github.io/" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: yoo236254676
 github_username:  fcoavc
-
+telegram_username: estad_camp_0
 # Build settings
 theme: minima
 plugins:
