@@ -29,6 +29,8 @@ github_username:  fcoavc
 telegram_username: estad_camp_0
 # Build settings
 theme: minima
+markdown: kramdown
+highlighter: rouge
 plugins:
   - jekyll-feed
 
