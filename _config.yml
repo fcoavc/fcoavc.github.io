@@ -30,6 +30,8 @@ telegram_username: estad_camp_0
 # Build settings
 theme: minima
 markdown: kramdown
+kramdown:
+  math_engine: mathjax
 highlighter: rouge
 plugins:
   - jekyll-feed
