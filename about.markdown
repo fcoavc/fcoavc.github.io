@@ -1,18 +1,15 @@
 ---
 layout: page
-title: About
+title: Acerca de
 permalink: /about/
 ---
 
-This is the base Jekyll theme. You can find out more info about customizing your Jekyll theme, as well as basic Jekyll usage documentation at [jekyllrb.com](https://jekyllrb.com/)
+_Estadística Desde Cero_ quiere agradecerte que nos sigas y estamos muy contentos de tenerte. Por esta razón hemos decidido crear este espacio en donde publicaremos contenido con mayor frecuencia.
 
-You can find the source code for Minima at GitHub:
-[jekyll][jekyll-organization] /
-[minima](https://github.com/jekyll/minima)
+Te presentamos _Blog de estadpistica aplicada_, un sitio en donde se abordarán temas de estadística aplicada y aprenderás más acerca de cómo aplicar diversos métodos estadísticos así como algunas soluciones o alternativas a varios problemas.
 
-You can find the source code for Jekyll at GitHub:
-[jekyll][jekyll-organization] /
-[jekyll](https://github.com/jekyll/jekyll)
+Actualizaremos regularmente este blog para mantenerte informado. No olvides seguirnos en nuestras redes sociales.
 
+Muchas gracias por apoyarnos.
 
-[jekyll-organization]: https://github.com/jekyll
+El equipo de _Estadística desde Cero_
