@@ -7,7 +7,7 @@ tags: simulación variable aleatoria uniforme probabilidad sas r
 author: Francisco Ariel
 ---
 
-{% include footer.html %}
+{% include footer2.html %}
 
 En probabilidad, el concepto de _variable aleatoria_ es uno de los pilares fundamentales para entender el comportamiento de un fenómeno aleatorio ya que su comportamiento está gobernado por una función de distribución $$F_X(x)$$.
 
@@ -48,18 +48,18 @@ ggplot(data = simulacion,aes(X))+geom_histogram()+theme_classic()+
 
 ### Ejemplo con SAS software
 
-Se ejemplifica la forma de crear valores aleatorios usando SAS/STAT® software. Primero se definen las variables macro a usar, posteriormente se usa un paso data para generar los números aleatorios y almacenarlos en un dataset y finalmente se grafican.
+Se ejemplifica la forma de crear valores aleatorios usando SAS/STAT® software. Primero se definen las variables macro a usar `&n.` y `&lambda.`, posteriormente se usa un paso data para generar los números aleatorios y almacenarlos en un dataset y finalmente se grafican.
 
 {% highlight sas %}
 /*Variables macro*/
 %LET n = 1000;
-%LET lamda = 5;
+%LET lambda = 5;
 data simulacion;
     drop i semilla;
     semilla = 123;
     do i = 1 to &n.;
        call ranuni(semilla,u);
-       x = (-1/&lamda.)*log(1-u);
+       x = (-1/&lambda.)*log(1-u);
        output;
     end;
 run;
@@ -68,7 +68,6 @@ proc sgplot data=simulacion;
 histogram x;
 run;
 {% endhighlight %}
-
 
 ![Histograma de la simulación con SAS](/assets/sim_sas.png)
 
@@ -86,5 +85,6 @@ R Core Team. 2022. _R: A language and environment for statistical computing_. R 
 
 SAS Institute Inc. 2018. _SAS/STAT 15.1 User’s Guide_. Cary, NC.
 
+----
 
 > SAS and all other SAS Institute Inc. product or service names are registered trademarks or trademarks of SAS Institute Inc. in the USA and other countries. ® indicates USA registration.
