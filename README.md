@@ -1,18 +1,18 @@
 # Blog
 
-En este repositorio está el código fuente para generar [mi blog](https://fcoavc.github.io/).
+En este repositorio está el código fuente para generar [mi blog](https://fcoavc.github.io/blog).
 
 En sitio se usa [Jekyll](https://jekyllrb.com/) para construir nuevos posts en el sitio.
 
 Simplemente se crea un nuevo archivo `yyyy-mm-dd-nombre.md` en la carpeta `docs/_posts` y automáticamente se incluirá en el blog.
 
-Para poder trabajar con los archivos markdown, se deben incluir los siguientes mestadatos en formato yaml:
+Para poder trabajar con los archivos markdown, se deben incluir los siguientes metadatos en formato yaml:
 
 - layout: post
-- title:  "Simulación de variables aleatorias"
+- title:  "Título del post"
 - date:   yyyy-mm-dd hh:mm:ss -0600
-- tags: simulación variable aleatoria uniforme probabilidad sas r  
-- author: 
+- tags: etiqueta1 etiqueta2 etiquetan
+- author: Nombre o username
 
 Es posible incluir fragmentos de código, por ejemplo:
 

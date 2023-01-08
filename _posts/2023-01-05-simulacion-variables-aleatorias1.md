@@ -93,6 +93,7 @@ Para generar números aleatorios con Julia, se puede definir una función y desp
         x = -1*(1/l)*log.(1 .- u)
         return x
     end
+    x = rand_exp(1000,5)
     using StatsPlots
     histogram(x,xlabel="X", ylabel="Frecuencia",legend =:none)
     title!("Distribución de X")
@@ -124,6 +125,8 @@ mp.hist(x)
 mp.title('Distribución de $X$')
 mp.show()
 {% endhighlight %}
+
+![Histograma de la simulación con Python](/assets/sim_python.png)
 
 Para establecer un valor inicial, se puede usar la función `numpy.random.default_rng()`, por ejemplo `numpy.random.default_rng(seed=123)`.
 
