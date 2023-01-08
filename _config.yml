@@ -22,7 +22,7 @@ title: Blog de estadística aplicada
 email: fcoavc@yahoo.com
 description: >- # this means to ignore newlines until "baseurl:"
   Un blog en donde aprenderás diversos métodos estadísticos de forma fácil y divertida usando varios softwares estadísticos.
-baseurl: "/blog" # the subpath of your site, e.g. /blog
+baseurl: "/" # the subpath of your site, e.g. /blog
 url: "fcoavc.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: yoo236254676
 github_username:  fcoavc
