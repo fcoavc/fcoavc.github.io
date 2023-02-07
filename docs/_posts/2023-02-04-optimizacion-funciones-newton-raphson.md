@@ -116,11 +116,15 @@ $$\frac{\partial^2 l(\gamma,\beta)}{\partial \gamma^2} = -\frac{n}{\gamma^2} - \
 
 Finalmente la matriz de covarianzas puede ser estimada con $V(\gamma,\beta) = H(\gamma,\beta)^{-1}$.
 
+Para iniciar con el algoritmo, se propone como valores iniciales el promedio simple para $\beta$ y se fijará $\gamma = 1$.
+
 A continuación se mostrará cómo implementar este algoritmo en distintos lenguajes de programación.
 
 ### Ejemplo con R
 
 Primero se puede definir 3 funciones que serán de utilidad, la primera será la función de log-verosimilitud, la segunda la función score y por último la función hessiana.
+
+Es recomendable que las funciones reciban un vector como argumento, mientras que los datos pueden ser definidos de forma global.
 
 {% highlight r %}
 # Datos
@@ -128,16 +132,183 @@ ti = c(283,361,515,638,854,1024,1030,1045,1767,1777,1856,1951,1964,2884)
 
 # Función de log-verosimilitud
 logv = function(params){
-  g = params[1]
-  b = params[2]
+  beta = params[1]
+  gama = params[2]
   n = length(ti)
-  lv = n*(log(g)-g*log(b)) + (g-1)*sum(log(ti))-sum(ti^g)/b^g
-  return(lv)
+  s1 = n*(log(gama) - gama*log(beta));
+  s2 = (gama-1)*sum(log(ti));
+  s3 = (sum((ti^gama)))/(beta^gama);
+  s = s1+s2-s3;
+  return(s)
 }
 
 # Función score
+score <- function(params) {
+  b = params[1]
+  g = params[2]
+  n = length(ti)
+  s1 = -n*g/b+g*sum(ti^g)*(1/b)^(g+1)
+  s2 = n*(1/g-log(b))+sum(log(ti))-(sum(ti^g*log(ti))+log(1/b)*sum(ti^g))/(b^g)
+  s = c(s1,s2)
+  return(s)
+}
+
+# Matriz hessiana
+hessiano <- function(params) {
+  n = length(ti)
+  beta = params[1];
+  gama = params[2];
+  h11 = n*gama/beta^2 - gama*(gama+1)*(1/beta)^(gama+2)*sum((ti^gama));
+  h12 = -n/beta + (gama*sum((ti^gama)*log(ti)) + (1+gama*log(1/beta))*sum((ti^gama))) / (beta^(gama+1));
+  h22 = -n/gama^2 - (sum((ti^gama)*log(ti)^2) + 2*log(1/beta)*sum((ti^gama)*log(ti)) + log(1/beta)^2*sum((ti^gama)))/(beta^gama);
+  h = matrix(c(h11,h12,h12,h22),nrow = 2,ncol = 2,byrow = TRUE)
+  return(h)
+}
 
 {% endhighlight %}
+
+Para la implementación del algoritmo, se pueden definir una función que reciba como argumentos los valores iniciales.
+
+{% highlight r %}
+NR <- function(semilla,niter = 30, tol = 0.0001) {
+  inicial = semilla;
+  lvi = logv(inicial);
+  dist = 1;
+  i = 0;
+  while (i <= niter) {
+    H = hessiano(inicial);
+    VC = solve(H);
+    S = score(inicial);
+    final = inicial - VC%*%S;
+    dist = max(abs(final-inicial));
+    a = final[1];
+    b = final[2];
+    #hist = rbind(hist,cbind(i,dist,a,b));
+    if(dist < tol){
+      cat("Convergencia exitosa\n")
+      logv = logv(final);
+      grad = score(final);
+      VC = solve(H);
+      cat("Log-verosimilitud final\n",logv,"\nValor del gradiente final\n",grad,
+          "\nMatriz de covarianzas estimada\n",VC,"\n Valores estimados\n")
+      #print(hist)
+      return(final);
+    }
+    i = i+1;
+    inicial = final;
+  }
+  cat("El algoritmo Newton-Raphson podría no converger\n",
+      "Se encontraron problemas de convergencia\n",
+      "El algoritmo fue detenido");
+}
+{% endhighlight %}
+
+En la siguiente imagen se muestra el resultado del algoritmo.
+
+![Resultado del algoritmo en R](/assets/nr_r.png)
+
+### Ejemplo con SAS software
+
+Se ejemplifica la forma de estimar los parámetros aleatorios usando SAS® software.
+
+Es importante mencionar que se debe trabajar con SAS/IML 15.1, debido a que se manejarán matrices.
+
+Primero se invocará el procedimiento IML y se creará un vector que contengan los datos, posteriormente se crearán los módulos para la log-verosimilitud, función score y el hessiano.
+
+Finalmente se implementará el algoritmo Newton-Raphson en un módulo que llamará las funciones antes definidas.
+
+{% highlight sas %}
+PROC IML;
+/* Datos */
+n = 14;
+ti = {283 361 515 638 854 1024 1030 1045 1767 1777 1856 1951 1964 2884};
+/* Función de verosimilitud */
+START lvero (params) global (ti, n);
+    beta = params[1];
+    gama = params[2];
+    s1 = n#(log(gama) - gama#log(beta));
+    s2 = (gama-1)#sum(log(ti));
+    s3 = (sum((ti##gama)))/(beta##gama);
+    s = s1+s2-s3;
+    RETURN(s);
+FINISH;
+/*Score*/
+START score (params) global (ti, n);
+    beta = params[1];
+    gama = params[2];
+    s1 = -n#gama/beta + gama#(1/beta)##(gama+1)#sum((ti##gama));
+    s2 = n#(1/gama-log(beta)) + sum(log(ti)) -(sum((ti##gama)#log(ti)) + log(1/beta)#sum((ti##gama)))/(beta##gama);
+    s = s1 // s2;
+    RETURN(s);
+FINISH;
+START hessiano(params) GLOBAL (ti, n);
+        beta = params[1];
+        gama = params[2];
+        h11 = n#gama/beta##2 - gama#(gama+1)#(1/beta)##(gama+2)#sum((ti##gama));
+        h12 = -n/beta + (gama#sum((ti##gama)#log(ti)) + (1+gama#log(1/beta))#sum((ti##gama))) / (beta##(gama+1));
+        h22 = -n/gama##2 - (sum((ti##gama)#log(ti)##2) + 2#log(1/beta)#sum((ti##gama)#log(ti)) + log(1/beta)##2#sum((ti##gama)))/(beta##gama);
+        h = ( h11 || h12) // (h12 || h22);
+        RETURN (h);
+    FINISH;
+
+/* Algoritmo Newton - Raphson*/
+START NR(semilla) GLOBAL (ti, n, niter, tol);
+        TITLE "Estimación de parámetros usando el Algoritmo Newton-Raphson";
+        inicial = semilla;
+        dist = 1;
+        i = 0;
+        DO WHILE(i <= niter);
+            H = hessiano(inicial);
+            VC = INV(H);
+            S = score(inicial);
+            final = inicial - VC*S;
+            dist = MAX(ABS(final-inicial));
+            a = final[1];
+            b = final[2];
+            history = history // (i || dist || a || b);
+            IF (dist < tol) THEN DO;
+                MATTRIB final ROWNAME = {"Beta","Gama"} LABEL = "Estimaciones";
+                message = "Convergencia exitosa";
+                MATTRIB message LABEL = "Status de convergencia";
+                PRINT message;
+                PRINT final;
+                logv = lvero(final);
+                grad = score(final);
+                MATTRIB logv LABEL = "Log-verosimilitud final";
+                MATTRIB grad LABEL = "Valor del gradiente final";
+                PRINT logv;
+                PRINT grad;
+                H = -Hessiano(final);
+                VC = INV(H);
+                MATTRIB VC LABEL = "Matriz de covarianzas estimada";
+                PRINT VC;
+                MATTRIB history COLNAME = {"Iteración","Distancia","Beta","Gama"} LABEL = "Iteración";
+                PRINT history;
+                return;
+            END;
+            i = i+1;
+            inicial = final;
+        END;
+        ultiter = history[i,];
+        MATTRIB ultiter COLNAME = {"Iteración","Distancia","Beta","Gama"}
+                        LABEL = "Última iteración";
+        message = {"El algoritmo Newton-Raphson podría no converger",
+                            "Se encontraron problemas de convergencia",
+                            "El algoritmo fue detenido"};
+        MATTRIB message LABEL = "Status de convergencia";
+        PRINT message,ultiter;
+    FINISH;
+    /* Valor inicial */
+    x0 = {1282,1};
+    niter = 25;
+    tol = 0.0001;
+    CALL NR (x0);
+quit;
+{% endhighlight %}
+
+La siguiente imagen muestra el resultado obtenido.
+
+![Resultado del algoritmo en SAS](/assets/nr_sas.png)
 
 ## Referencias
 
