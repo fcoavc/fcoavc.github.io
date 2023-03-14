@@ -159,8 +159,10 @@ hessiano <- function(params) {
   beta = params[1];
   gama = params[2];
   h11 = n*gama/beta^2 - gama*(gama+1)*(1/beta)^(gama+2)*sum((ti^gama));
-  h12 = -n/beta + (gama*sum((ti^gama)*log(ti)) + (1+gama*log(1/beta))*sum((ti^gama))) / (beta^(gama+1));
-  h22 = -n/gama^2 - (sum((ti^gama)*log(ti)^2) + 2*log(1/beta)*sum((ti^gama)*log(ti)) + log(1/beta)^2*sum((ti^gama)))/(beta^gama);
+  h12 = -n/beta + (gama*sum((ti^gama)*log(ti)) + (1+gama*log(1/beta)) * 
+    sum((ti^gama))) / (beta^(gama+1));
+  h22 = -n/gama^2 - (sum((ti^gama)*log(ti)^2) + 2*log(1/beta) * 
+    sum((ti^gama)*log(ti)) + log(1/beta)^2*sum((ti^gama)))/(beta^gama);
   h = matrix(c(h11,h12,h12,h22),nrow = 2,ncol = 2,byrow = TRUE)
   return(h)
 }
@@ -188,7 +190,7 @@ NR <- function(semilla,niter = 30, tol = 0.0001) {
       cat("Convergencia exitosa\n")
       logv = logv(final);
       grad = score(final);
-      VC = solve(H);
+      VC = -solve(H);
       cat("Log-verosimilitud final\n",logv,"\nValor del gradiente final\n",grad,
           "\nMatriz de covarianzas estimada\n",VC,"\n Valores estimados\n")
       #print(hist)
@@ -201,6 +203,7 @@ NR <- function(semilla,niter = 30, tol = 0.0001) {
       "Se encontraron problemas de convergencia\n",
       "El algoritmo fue detenido");
 }
+NR(c(1280,1))
 {% endhighlight %}
 
 En la siguiente imagen se muestra el resultado del algoritmo.
@@ -237,7 +240,8 @@ START score (params) global (ti, n);
     beta = params[1];
     gama = params[2];
     s1 = -n#gama/beta + gama#(1/beta)##(gama+1)#sum((ti##gama));
-    s2 = n#(1/gama-log(beta)) + sum(log(ti)) -(sum((ti##gama)#log(ti)) + log(1/beta)#sum((ti##gama)))/(beta##gama);
+    s2 = n#(1/gama-log(beta)) + sum(log(ti)) -(sum((ti##gama) # log(ti)) + 
+      log(1/beta)#sum((ti##gama)))/(beta##gama);
     s = s1 // s2;
     RETURN(s);
 FINISH;
@@ -245,8 +249,10 @@ START hessiano(params) GLOBAL (ti, n);
         beta = params[1];
         gama = params[2];
         h11 = n#gama/beta##2 - gama#(gama+1)#(1/beta)##(gama+2)#sum((ti##gama));
-        h12 = -n/beta + (gama#sum((ti##gama)#log(ti)) + (1+gama#log(1/beta))#sum((ti##gama))) / (beta##(gama+1));
-        h22 = -n/gama##2 - (sum((ti##gama)#log(ti)##2) + 2#log(1/beta)#sum((ti##gama)#log(ti)) + log(1/beta)##2#sum((ti##gama)))/(beta##gama);
+        h12 = -n/beta + (gama#sum((ti##gama)#log(ti)) + (1+gama#log(1/beta)) # 
+          sum((ti##gama))) / (beta##(gama+1));
+        h22 = -n/gama##2 - (sum((ti##gama)#log(ti)##2) + 2#log(1/beta) # 
+          sum((ti##gama)#log(ti)) + log(1/beta)##2#sum((ti##gama)))/(beta##gama);
         h = ( h11 || h12) // (h12 || h22);
         RETURN (h);
     FINISH;
@@ -282,7 +288,8 @@ START NR(semilla) GLOBAL (ti, n, niter, tol);
                 VC = INV(H);
                 MATTRIB VC LABEL = "Matriz de covarianzas estimada";
                 PRINT VC;
-                MATTRIB history COLNAME = {"Iteración","Distancia","Beta","Gama"} LABEL = "Iteración";
+                MATTRIB history COLNAME = {"Iteración","Distancia","Beta","Gama"} 
+                  LABEL = "Iteración";
                 PRINT history;
                 return;
             END;
@@ -309,6 +316,93 @@ quit;
 La siguiente imagen muestra el resultado obtenido.
 
 ![Resultado del algoritmo en SAS](/assets/nr_sas.png)
+
+
+## Ejemplo con Julia
+
+Para optimizar una función con Julia con el algoritmo Newton-Raphson, primero se debe definir las funciones auxiliares y posteriormente se calculan los nuevos valores de forma iterativa.
+
+{% highlight julia %}
+# Datos
+ti = [283,361,515,638,854,1024,1030,1045,1767,1777,1856,1951,1964,2884]
+n = length(ti)
+# Función de verosimilitud
+function lvero(params)
+  beta = params[1]
+  gama = params[2]
+  s1 = n*(log(gama) - gama*log(beta))
+  s2 = (gama-1)*sum(log.(ti))
+  s3 = (sum((ti.^gama)))/(beta^gama)
+  s = s1+s2-s3
+  return s
+end
+
+# Función score
+function score(params)
+  b = params[1]
+  g = params[2]
+  s1 = -n*g/b+g*sum(ti.^g)*(1/b)^(g+1)
+  s2 = n*(1/g-log(b))+sum(log.(ti))-(sum(ti.^g.*log.(ti))+log(1/b)*sum(ti.^g))/(b^g)
+  s = [s1,s2]
+  return s
+end
+
+# Matriz hessiana
+function hessiano(params)
+  beta = params[1]
+  gama = params[2]
+  h11 = n*gama/beta^2 - gama*(gama+1)*(1/beta)^(gama+2)*sum((ti.^gama))
+  h12 = -n/beta + (gama*sum((ti.^gama).*log.(ti)) + (1+gama*log(1/beta)) * 
+    sum((ti.^gama))) / (beta^(gama+1))
+  h22 = -n/gama^2 - (sum((ti.^gama).*log.(ti).^2) + 2*log(1/beta) * 
+    sum((ti.^gama).*log.(ti)) + log(1/beta)^2*sum((ti.^gama)))/(beta^gama)
+  h = [[h11,h12] [h12,h22]]
+  return h
+end
+{% endhighlight %}
+
+Para la implementación del algoritmo Newton Raphson, se puede definir una función que reciba como argumentos los valores iniciales.
+
+{% highlight julia %}
+function NR(semilla,niter = 30, tol = 0.0001)
+  inicial = semilla;
+  lvi = lvero(inicial);
+  dist = 1;
+  i = 0;
+  while i <= niter 
+    H = hessiano(inicial);
+    VC = inv(H);
+    S = score(inicial);
+    final = inicial - VC*S;
+    dif = abs.(final-inicial)
+    dist = dif[argmax(dif)]
+    a = final[1];
+    b = final[2];
+    if dist <= tol
+      println("Convergencia exitosa")
+      logv = lvero(final);
+      grad = score(final);
+      VC = -inv(H);
+      println("Log-verosimilitud final\n",logv,"\nValor del gradiente final\n",grad,
+          "\nMatriz de covarianzas estimada\n",VC,"\n Valores estimados\n")
+      return(final);
+    end
+    i = i+1;
+    inicial = final;
+  end
+  println("El algoritmo Newton-Raphson podría no converger\n",
+      "Se encontraron problemas de convergencia\n",
+      "El algoritmo fue detenido");
+end
+
+inicial = [1280,1]
+NR(inicial)
+{% endhighlight %}
+
+En la siguiente imagen se ilustra el resultado del algoritmo.
+
+![Resultado del algoritmo en Julia](/assets/nr_julia.png)
+
 
 ## Referencias
 
