@@ -318,7 +318,7 @@ La siguiente imagen muestra el resultado obtenido.
 ![Resultado del algoritmo en SAS](/assets/nr_sas.png)
 
 
-## Ejemplo con Julia
+### Ejemplo con Julia
 
 Para optimizar una función con Julia con el algoritmo Newton-Raphson, primero se debe definir las funciones auxiliares y posteriormente se calculan los nuevos valores de forma iterativa.
 
@@ -365,34 +365,32 @@ Para la implementación del algoritmo Newton Raphson, se puede definir una funci
 
 {% highlight julia %}
 function NR(semilla,niter = 30, tol = 0.0001)
-  inicial = semilla;
-  lvi = lvero(inicial);
-  dist = 1;
-  i = 0;
+  inicial = semilla
+  lvi = lvero(inicial)
+  dist = 1
+  i = 0
   while i <= niter 
-    H = hessiano(inicial);
-    VC = inv(H);
-    S = score(inicial);
-    final = inicial - VC*S;
+    H = hessiano(inicial)
+    VC = inv(H)
+    S = score(inicial)
+    final = inicial - VC*S
     dif = abs.(final-inicial)
     dist = dif[argmax(dif)]
-    a = final[1];
-    b = final[2];
     if dist <= tol
       println("Convergencia exitosa")
-      logv = lvero(final);
-      grad = score(final);
-      VC = -inv(H);
+      logv = lvero(final)
+      grad = score(final)
+      VC = -inv(H)
       println("Log-verosimilitud final\n",logv,"\nValor del gradiente final\n",grad,
           "\nMatriz de covarianzas estimada\n",VC,"\n Valores estimados\n")
-      return(final);
+      return(final)
     end
-    i = i+1;
-    inicial = final;
+    i = i+1
+    inicial = final
   end
   println("El algoritmo Newton-Raphson podría no converger\n",
       "Se encontraron problemas de convergencia\n",
-      "El algoritmo fue detenido");
+      "El algoritmo fue detenido")
 end
 
 inicial = [1280,1]
@@ -402,6 +400,93 @@ NR(inicial)
 En la siguiente imagen se ilustra el resultado del algoritmo.
 
 ![Resultado del algoritmo en Julia](/assets/nr_julia.png)
+
+### Ejemplo con Python
+
+Para optimizar una función con Python usando el algoritmo Newton-Raphson, primero se debe definir las funciones auxiliares y posteriormente se calculan los nuevos valores de forma iterativa.
+
+{% highlight python %}
+# Datos
+import numpy as nu
+ti = nu.array([283,361,515,638,854,1024,1030,1045,1767,1777,1856,1951,1964,2884])
+n = len(ti)
+
+# Función de verosimilitud
+def lvero(params):
+  beta = params[0]
+  gama = params[1]
+  s1 = n*(nu.log(gama) - gama*nu.log(beta))
+  s2 = (gama-1)*sum(nu.log(ti))
+  s3 = (sum((ti^gama)))/(beta^gama)
+  s = s1+s2-s3
+  return s
+
+# Función score
+def score(params):
+  b = params[0]
+  g = params[1]
+  s1 = -n*g/b+g*sum(ti**g)*(1/b)**(g+1)
+  s2 = n*(1/g-nu.log(b))+sum(nu.log(ti))-(sum(ti**g*nu.log(ti))+nu.log(1/b)*sum(ti**g))/(b**g)
+  s = nu.array([s1,s2])
+  return s
+
+# Matriz hessiana
+def hessiano(params):
+  beta = params[0]
+  gama = params[1]
+  h11 = n*gama/beta**2 - gama*(gama+1)*(1/beta)**(gama+2)*sum((ti**gama))
+  h12 = -n/beta + (gama*sum((ti**gama)*nu.log(ti)) + (1+gama*nu.log(1/beta)) * 
+    sum((ti**gama))) / (beta**(gama+1))
+  h22 = -n/gama**2 - (sum((ti**gama)*nu.log(ti)**2) + 2*nu.log(1/beta) * 
+    sum((ti**gama)*nu.log(ti)) + nu.log(1/beta)**2*sum((ti**gama)))/(beta**gama)
+  h = nu.array([[h11,h12], [h12,h22]])
+  return h
+
+{% endhighlight %}
+
+A continuación se muestra el algoritmo Newton-Raphson.
+
+{% highlight python %}
+from numpy.linalg import inv
+def NR(semilla,niter = 30, tol = 0.0001):
+  inicial = semilla
+  lvi = lvero(inicial)
+  dist = 1
+  i = 0
+  while i <= niter: 
+    H = hessiano(inicial)
+    VC = inv(H)
+    S = score(inicial)
+    final = inicial - VC@S
+    dist = max(nu.absolute(final-inicial))
+    if dist <= tol:
+      print("Convergencia exitosa")
+      logv = lvero(final)
+      grad = score(final)
+      VC = -inv(H)
+      print("Log-verosimilitud final\n",logv,"\nValor del gradiente final\n",grad,
+          "\nMatriz de covarianzas estimada\n",VC,"\n Valores estimados\n")
+      return(final)
+    i = i+1
+    inicial = final
+
+  print("El algoritmo Newton-Raphson podría no converger\n",
+      "Se encontraron problemas de convergencia\n",
+      "El algoritmo fue detenido")
+
+x0 = [1280,1]
+NR(x0)
+{% endhighlight %}
+
+La siguiente imagen muestra el resultado obtenido usando python.
+
+![Resultado del algoritmo en Python](/assets/nr_python.png)
+
+## Conclusión
+
+Este algoritmo es my útil para obtener estimaciones y sus intervalos de confianza ya que es muy rápido a diferencia de otros métodos de optimización, por lo que es uno de los más utilizados en estadística. 
+
+Sin embargo, es importante mencionar que este método requiere tener buenos valores iniciales, de otro modo el algoritmo podría ser lento o incluso no converger. Otro problema es que es necesario tener las derivadas de las funciones a optimizar, lo cual puede ser un grave problema si la función es muy complicada, por lo que se deberian explorar otras alternativas.
 
 
 ## Referencias
