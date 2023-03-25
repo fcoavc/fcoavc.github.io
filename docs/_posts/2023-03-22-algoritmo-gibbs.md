@@ -157,11 +157,27 @@ for(i in -1000:m){
 Los resultados se muestran a continuación.
 
 {% highlight r %}
+par(mfrow=c(1,2))
+hist(betas_post[,1],main = "Distribución de b0",xlab="b0")
+hist(betas_post[,2],main = "Distribución de b1",xlab="b1")
 medias_post = apply(betas_post, 2, mean)
 names(medias_post) <- names(beta_ini)
 medias_post
 lm(Salary~YearsExperience,datos)
 {% endhighlight %}
+
+    > medias_post
+        (Intercept) YearsExperience 
+        32.205503        6.826937 
+    > lm(Salary~YearsExperience,datos)
+    Call:
+    lm(formula = Salary ~ YearsExperience, data = datos)
+    Coefficients:
+    (Intercept)  YearsExperience  
+         32.199            6.826
+
+![Resultado del algoritmo en R](/assets/gibbs_r.png)
+
 
 ## Referencias
 
