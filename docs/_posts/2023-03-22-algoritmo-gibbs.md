@@ -178,6 +178,95 @@ lm(Salary~YearsExperience,datos)
 
 ![Resultado del algoritmo en R](/assets/gibbs_r.png)
 
+### Ejemplo con SAS software
+
+Debido a que se realizarán cálculos iterativos, se debe trabajar con SAS/IML 15.1. El siguiente código muestra cómo implementar el algoritmo, primero se leen los datos y se crea la matriz diseño.
+
+{% highlight sas %}
+/* Lectura de datos*/
+FILENAME web URL "https://fcoavc.github.io/assets/SalaryData.csv";
+PROC IMPORT OUT = salary DATAFILE = web DBMS = CSV REPLACE;
+    GETNAMES = YES;
+    DATAROW = 2;
+    GUESSINGROWS=1000;
+RUN;
+
+/* Matriz diseño */
+proc transreg data=salary design;
+   model identity(salary) = identity(yearsexperience);
+   output out=diseno;
+run;
+{% endhighlight %}
+
+Posteriormente se leen los datos y se simula usando el algoritmo de Gibbs.
+
+{% highlight sas %}
+proc iml;
+use work.diseno;
+read all var {salary} into y;
+read all var {intercept yearsexperience} into x;
+close work.diseno;
+n = nrow(y);
+nmc = 2000;
+betas_post = j(nmc,2,.);
+sigma2_post = j(nmc,1,.);
+betas0 = {0,0};
+XtX = t(X) * X;
+inv_XtX = inv(XtX);
+call randseed(123);
+DO i = -1000 TO nmc;
+    eta = X*betas0;
+    ri = y-eta;
+    sce = sum(ri##2);
+    sigma20 = 1/randfun(1,"Gamma",n/2,2/sce);
+    V = sigma20#inv_XtX;
+    mu = inv_XtX*t(X)*y;
+    betas1 =RandNormal( 1, mu, v);
+    IF i>=1 then DO;
+        sigma2_post[i] = sigma20;
+        betas_post[i,] = betas1;
+    END;
+END;
+mbetas = mean(betas_post);
+msigma2 = mean(sigma2_post);
+MATTRIB mbetas COLNAME = {"beta 0" "beta 1"}; 
+print "Media posterior betas", mbetas;
+create posterior from betas_post[colname={"beta0" "beta1"}];
+append from betas_post;
+close posterior;
+quit;
+{% endhighlight %}
+
+Finalmente se procesan los datos resultantes para presentar una gráfica.
+
+{% highlight sas %}
+data posterior;
+set posterior;
+i = _N_;
+run;
+
+proc transpose data=posterior out = betas(rename=(_name_ = coef)) prefix=beta;
+by i;
+var beta0 beta1;
+run;
+
+data betas;
+set betas;
+label coef = "Parámetro";
+run;
+
+proc sgpanel data=betas noautolegend;
+  title "Distribución a posteriori de las betas";
+  panelby coef /UNISCALE= ROW;
+  histogram beta1;
+  density beta1;
+run;
+title;
+{% endhighlight %}
+
+El resultado se muestra a continuación.
+
+![Resultado del algoritmo en SAS](/assets/gibbs_sas.png)
 
 ## Referencias
 
